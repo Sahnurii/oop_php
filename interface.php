@@ -1,13 +1,23 @@
 <?php
 
-class Produk
+//ini adalah interface
+//memakai implements keywords untuk menerapkan interface, bisa digabung dengan inheritance seperti contoh child dibawah
+//interface tidak boleh memiliki properti 1 pun dan hanya method tanpa di impelemntasikan
+//setiap interface metthod nya wajib di muat didalam child/implemetns tertentu yang memakai interface itu 
+//ini adlaah penerapan oop yang bagus karena terstruktur
+
+interface InfoProduk
 {
-    private $judul,
+    public function getInfoProduk();
+}
+
+abstract class Produk
+{
+    protected $judul,
         $penulis,
         $penerbit,
-        $harga;
-
-    protected $diskon = 0;
+        $harga,
+        $diskon = 0;
 
 
     public function __construct($judul = "Judul", $penulis = "Penulis", $penerbit = "Penerbit", $harga = 0)
@@ -63,17 +73,10 @@ class Produk
 
         return $this->harga - ($this->harga * $this->diskon / 100);
     }
-
-
-    public function getInfoProduk()
-    {
-        $str = "{$this->judul} | {$this->getLabel()} (Rp. {$this->harga})";
-
-        return $str;
-    }
 }
 
-class Komik extends Produk
+//begini cara mengimplementasikannya dengan menulis implements
+class Komik extends Produk implements InfoProduk
 {
     public $jmlHalaman;
 
@@ -84,15 +87,22 @@ class Komik extends Produk
         $this->jmlHalaman = $jmlHalaman;
     }
 
+    public function infoProduk()
+    {
+        $str = "{$this->judul} | {$this->getLabel()} (Rp. {$this->harga})";
+
+        return $str;
+    }
+
     public function getInfoProduk()
     {
-        $str = "Komik : " . parent::getInfoProduk() . " - {$this->jmlHalaman} Halaman.";
+        $str = "Komik : " . $this->InfoProduk() . " - {$this->jmlHalaman} Halaman.";
 
         return $str;
     }
 }
 
-class Game extends Produk
+class Game extends Produk implements InfoProduk
 {
     public $waktuMain;
 
@@ -101,9 +111,17 @@ class Game extends Produk
         parent::__construct($judul, $penulis, $penerbit, $harga);
         $this->waktuMain = $waktuMain;
     }
+
+    public function infoProduk()
+    {
+        $str = "{$this->judul} | {$this->getLabel()} (Rp. {$this->harga})";
+
+        return $str;
+    }
+
     public function getInfoProduk()
     {
-        $str = "Game : " . parent::getInfoProduk() . " ~ {$this->waktuMain} Jam.";
+        $str = "Game : " . $this->InfoProduk() . " ~ {$this->waktuMain} Jam.";
 
         return $str;
     }
@@ -114,23 +132,32 @@ class Game extends Produk
     }
 }
 
-$produk = new Komik("Naruto", "Masashi Kishimoto", "Sahnuri Corp", 120000, 120);
+class CetakInfoProduk
+{
+    public $daftarProduk = array();
+
+    public function tambahProduk(Produk $produk)
+    {
+        $this->daftarProduk[] = $produk;
+    }
+
+    public function cetak()
+    {
+        $str = "DAFTAR PRODUK : <br>";
+
+        foreach ($this->daftarProduk as $p) {
+            $str .= "- {$p->getInfoProduk()} <br>";
+        }
+
+        return $str;
+    }
+}
+
+$produk1 = new Komik("Naruto", "Masashi Kishimoto", "Sahnuri Corp", 120000, 120);
 $produk2 = new Game("PUBG", "SEA", "NET", 300000, 50);
 
-echo $produk->getInfoProduk();
-echo "<br>";
-echo $produk2->getInfoProduk();
-echo "<hr>";
+$CetakProduk = new CetakInfoProduk();
 
-$produk2->setDiskon(50);
-echo $produk2->getHarga();
-echo "<hr>";
-
-$produk->setJudul("Telah Ganti Judul");
-$produk->setPenulis("Ini Bukan Penulis");
-$produk->setPenerbit("Sama Aja");
-echo $produk->getJudul();
-echo $produk->getPenulis();
-echo $produk->getPenerbit();
-$produk->setHarga(1000000);
-echo $produk->getHarga();
+$CetakProduk->tambahProduk($produk1);
+$CetakProduk->tambahProduk($produk2);
+echo $CetakProduk->cetak();

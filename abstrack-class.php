@@ -1,6 +1,6 @@
 <?php
 
-class Produk
+abstract class Produk
 {
     private $judul,
         $penulis,
@@ -65,7 +65,9 @@ class Produk
     }
 
 
-    public function getInfoProduk()
+    abstract public function getInfoProduk();
+    
+    public function infoProduk()
     {
         $str = "{$this->judul} | {$this->getLabel()} (Rp. {$this->harga})";
 
@@ -86,7 +88,7 @@ class Komik extends Produk
 
     public function getInfoProduk()
     {
-        $str = "Komik : " . parent::getInfoProduk() . " - {$this->jmlHalaman} Halaman.";
+        $str = "Komik : " . $this->InfoProduk() . " - {$this->jmlHalaman} Halaman.";
 
         return $str;
     }
@@ -103,7 +105,7 @@ class Game extends Produk
     }
     public function getInfoProduk()
     {
-        $str = "Game : " . parent::getInfoProduk() . " ~ {$this->waktuMain} Jam.";
+        $str = "Game : " . $this->InfoProduk() . " ~ {$this->waktuMain} Jam.";
 
         return $str;
     }
@@ -114,23 +116,33 @@ class Game extends Produk
     }
 }
 
-$produk = new Komik("Naruto", "Masashi Kishimoto", "Sahnuri Corp", 120000, 120);
+class CetakInfoProduk
+{
+    public $daftarProduk = array();
+
+    public function tambahProduk(Produk $produk)
+    {
+        $this->daftarProduk[] = $produk;
+    }
+
+    public function cetak()
+    {
+        $str = "DAFTAR PRODUK : <br>";
+
+        foreach($this->daftarProduk as $p)
+        {
+            $str .= "- {$p->getInfoProduk()} <br>";
+        }
+
+        return $str;
+    }
+}
+
+$produk1 = new Komik("Naruto", "Masashi Kishimoto", "Sahnuri Corp", 120000, 120);
 $produk2 = new Game("PUBG", "SEA", "NET", 300000, 50);
 
-echo $produk->getInfoProduk();
-echo "<br>";
-echo $produk2->getInfoProduk();
-echo "<hr>";
+$CetakProduk = new CetakInfoProduk();
 
-$produk2->setDiskon(50);
-echo $produk2->getHarga();
-echo "<hr>";
-
-$produk->setJudul("Telah Ganti Judul");
-$produk->setPenulis("Ini Bukan Penulis");
-$produk->setPenerbit("Sama Aja");
-echo $produk->getJudul();
-echo $produk->getPenulis();
-echo $produk->getPenerbit();
-$produk->setHarga(1000000);
-echo $produk->getHarga();
+$CetakProduk->tambahProduk($produk1);
+$CetakProduk->tambahProduk($produk2);
+echo $CetakProduk->cetak();
